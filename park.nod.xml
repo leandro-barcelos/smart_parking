@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- generated on 2024-11-06 17:16:04.241056 by createNet.py UNKNOWN
+  options: 
+-->
+<nodes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/nodes_file.xsd">
+<node id="principalentrada" x="-100" y="0"/>
+<node id="principal0" x="0" y="0"/>
+<node id="principal1" x="29" y="0"/>
+<node id="principal2" x="58" y="0"/>
+<node id="principal3" x="87" y="0"/>
+<node id="principal4" x="116" y="0"/>
+<node id="principal5" x="145" y="0"/>
+<node id="principal6" x="174" y="0"/>
+<node id="principal7" x="203" y="0"/>
+<node id="principal8" x="232" y="0"/>
+<node id="principal9" x="261" y="0"/>
+<node id="principal10" x="290" y="0"/>
+<node id="principal11" x="319" y="0"/>
+<node id="principal12" x="348" y="0"/>
+<node id="principal13" x="377" y="0"/>
+<node id="principal14" x="406" y="0"/>
+<node id="principalsaida" x="506" y="0"/>
+<node id="secundariaentrada" x="-100" y="165"/>
+<node id="secundaria0" x="0" y="165"/>
+<node id="secundaria1" x="29" y="165"/>
+<node id="secundaria2" x="58" y="165"/>
+<node id="secundaria3" x="87" y="165"/>
+<node id="secundaria4" x="116" y="165"/>
+<node id="secundaria5" x="145" y="165"/>
+<node id="secundaria6" x="174" y="165"/>
+<node id="secundaria7" x="203" y="165"/>
+<node id="secundaria8" x="232" y="165"/>
+<node id="secundaria9" x="261" y="165"/>
+<node id="secundaria10" x="290" y="165"/>
+<node id="secundaria11" x="319" y="165"/>
+<node id="secundaria12" x="348" y="165"/>
+<node id="secundaria13" x="377" y="165"/>
+<node id="secundaria14" x="406" y="165"/>
+<node id="secundariasaida" x="506" y="165"/>
+</nodes>

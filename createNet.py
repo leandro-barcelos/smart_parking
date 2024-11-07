@@ -7,6 +7,8 @@ import sys
 
 from constants import PREFIX, DOUBLE_ROWS, ROW_DIST, SLOTS_PER_ROW, SLOT_WIDTH, INFINITY
 
+DISABLED_PER_ROW = 1
+
 sys.path.append(os.path.join(os.environ["SUMO_HOME"], "tools"))
 import sumolib  # type: ignore
 
@@ -31,11 +33,42 @@ def create_edge(file, id, from_, to, oneWay=True, numLanes=2):
         )
 
 
-def create_parking_area(file, id, lane, angle=270, length=8):
+def create_parking_area(file, id, lane, x, n_disabled=0, angle=270, length=8):
     print(
-        f'\t<parkingArea id="{id}" lane="{lane}" roadsideCapacity="{SLOTS_PER_ROW}" angle="{angle}" length="{length}"/>',
+        f'\t<parkingArea id="ParkArea{id}" lane="{lane}" angle="{angle}" length="{length}">',
         file=file,
     )
+
+    space_padding = (3 * SLOT_WIDTH - 1) / SLOTS_PER_ROW
+
+    y = space_padding + 3
+
+    spaces = []
+    for i in range(SLOTS_PER_ROW):
+        if i < n_disabled:
+            disabled = True
+        else:
+            disabled = False
+
+        space = f"""      <space x="{x}" y="{y}">
+            <param key="id" value="r{id}s{i}"/>
+            <param key="disabled" value="{disabled}"/>
+        </space>"""
+        spaces.append(space)
+
+        y += SLOT_WIDTH + space_padding
+
+    for space in spaces:
+        print(space, file=file)
+
+    print("</parkingArea>", file=file)
+
+
+# def create_parking_area(file, id, lane, angle=270, length=8):
+#     print(
+#         f'\t<parkingArea id="{id}" lane="{lane}" roadsideCapacity="{SLOTS_PER_ROW}" angle="{angle}" length="{length}"/>',
+#         file=file,
+#     )
 
 
 def create_vtype(file, id, color, vClass=""):
@@ -47,9 +80,9 @@ def create_vtype(file, id, color, vClass=""):
     )
 
 
-def create_trip(file, id, depart, from_, to, parkingArea):
+def create_trip(file, id, type, depart, from_, to, parkingArea):
     print(
-        f"""    <trip id="{id}" type="car" depart="{depart}" from="{from_}" to="{to}">
+        f"""    <trip id="{id}" type="{type}" depart="{depart}" from="{from_}" to="{to}">
         <stop parkingArea="{parkingArea}" duration="{INFINITY}"/>
     </trip>""",
         file=file,
@@ -117,11 +150,17 @@ subprocess.call(
 stops = open(f"{PREFIX}.add.xml", "w")
 sumolib.xml.writeHeader(stops, root="additional")
 for row in range(DOUBLE_ROWS):
-    create_parking_area(stops, f"ParkArea{row}", f"road{row}_1")
-    create_parking_area(stops, f"ParkArea-{row}", f"-road{row}_1")
+    x = (row + 3) * ROW_DIST + 1.75
+    # create_parking_area(stops, f"ParkArea{row}", f"road{row}_1")
+    # create_parking_area(stops, f"ParkArea-{row}", f"-road{row}_1")
+    create_parking_area(stops, str(row), f"-road{row}_1", x, DISABLED_PER_ROW)
+    create_parking_area(
+        stops, "-" + str(row), f"road{row}_1", x + ROW_DIST / 2, DISABLED_PER_ROW
+    )
 
 # vehicle types
-create_vtype(stops, "car", "0.7,0.7,0.7")
+create_vtype(stops, "car", "0.7,0.0,0.0")
+create_vtype(stops, "disabled", "0.0,0.0,0.7")
 create_vtype(stops, "ped_pedestrian", "1,0.2,0.2", "pedestrian")
 
 print("</additional>", file=stops)
@@ -134,9 +173,15 @@ routes = open(f"{PREFIX}_demand{PERIOD}.rou.xml", "w")
 print("<routes>", file=routes)
 for v in range(SLOTS_PER_ROW):
     for idx in range(DOUBLE_ROWS):
+        if idx < DISABLED_PER_ROW:
+            type_ = "disabled"
+        else:
+            type_ = "car"
+
         create_trip(
             routes,
             f"v{idx}.{v}",
+            type_,
             v * PERIOD,
             "principalin",
             f"road{idx}",
@@ -145,6 +190,7 @@ for v in range(SLOTS_PER_ROW):
         create_trip(
             routes,
             f"v-{idx}.{v}",
+            type_,
             v * PERIOD,
             "principalin",
             f"-road{idx}",

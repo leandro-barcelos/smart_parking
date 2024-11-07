@@ -5,7 +5,7 @@ import subprocess
 import os
 import sys
 
-from constants import PREFIX, DOUBLE_ROWS, ROW_DIST, SLOTS_PER_ROW, SLOT_WIDTH
+from constants import PREFIX, DOUBLE_ROWS, ROW_DIST, SLOTS_PER_ROW, SLOT_WIDTH, INFINITY
 
 sys.path.append(os.path.join(os.environ["SUMO_HOME"], "tools"))
 import sumolib  # type: ignore
@@ -39,10 +39,10 @@ def create_parking_area(file, id, lane, angle=270, length=8):
 
 
 def create_vtype(file, id, color, vClass=""):
+    vClass_str = f'vClass="{vClass}"' if vClass != "" else ""
+
     print(
-        (
-            f'\t<vType id="{id}" color="{color}" {f'vClass="{vClass}"' if vClass != "" else ""}/> '
-        ),
+        (f'\t<vType id="{id}" color="{color}" {vClass_str}/> '),
         file=file,
     )
 
@@ -50,7 +50,7 @@ def create_vtype(file, id, color, vClass=""):
 def create_trip(file, id, depart, from_, to, parkingArea):
     print(
         f"""    <trip id="{id}" type="car" depart="{depart}" from="{from_}" to="{to}">
-        <stop parkingArea="{parkingArea}" duration="1000"/>
+        <stop parkingArea="{parkingArea}" duration="{INFINITY}"/>
     </trip>""",
         file=file,
     )
@@ -80,16 +80,16 @@ create_edge(edges, "principalout", nodeID, "principalsaida")
 y = (SLOTS_PER_ROW + 3) * SLOT_WIDTH
 nodeID = "secundaria0"
 create_node(nodes, "secundariaentrada", -100, y)
-create_edge(edges, "secundariain", "secundariaentrada", nodeID)
+create_edge(edges, "secundariain", nodeID, "secundariaentrada")
 for row in range(DOUBLE_ROWS):
     nextNodeID = f"secundaria{row}"
     x = row * ROW_DIST
     create_node(nodes, nextNodeID, x, y)
     if row > 0:
-        create_edge(edges, f"secundaria{row - 1}to{row}", nodeID, nextNodeID)
+        create_edge(edges, f"secundaria{row - 1}to{row}", nextNodeID, nodeID)
     nodeID = nextNodeID
 create_node(nodes, "secundariasaida", x + 100, y)
-create_edge(edges, "secundariaout", nodeID, "secundariasaida")
+create_edge(edges, "secundariaout", "secundariasaida", nodeID)
 
 # roads in the parking area
 for row in range(DOUBLE_ROWS):
@@ -127,7 +127,7 @@ create_vtype(stops, "ped_pedestrian", "1,0.2,0.2", "pedestrian")
 print("</additional>", file=stops)
 stops.close()
 
-PERIOD = 40
+PERIOD = 5
 
 # routes person
 routes = open(f"{PREFIX}_demand{PERIOD}.rou.xml", "w")

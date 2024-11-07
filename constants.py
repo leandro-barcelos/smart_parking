@@ -20,13 +20,13 @@ from __future__ import absolute_import
 import os
 import sys
 
-INFINITY = 1e400
+INFINITY = 999999999
 
-PREFIX = "park"
-DOUBLE_ROWS = 15
+PREFIX = "smart_parking"
+DOUBLE_ROWS = 10
 ROW_DIST = 29
 STOP_POS = ROW_DIST - 9
-SLOTS_PER_ROW = 30
+SLOTS_PER_ROW = 15
 SLOT_WIDTH = 5
 SLOT_LENGTH = 9
 SLOT_FOOT_LENGTH = 5
